@@ -4,75 +4,57 @@
 
 typedef struct locations {int x, y;} location;
 
-void printMap(char Map[][4][3]);
-//void pathFind(char Map[][4][3]);
-float pathToGoal(char Map[][4][3]);
+float distance(location *pawn, location *goal);
 
 int main() {
-	const char pawn = '!';
-	const char goal = 'G';
-	const char path = '-';
-	location pawnStart, goalPoint;
+	int width, length, i, j;
+	location goalLocation, pawnLocation;
+	char goal[] = "[G]";
+	char pawn[] = "[P]";
+	char tile[] = "[ ]";
+	const int elemSize = sizeof(tile)+sizeof(char*);
+
+	printf("Goal: %s\nPawn: %s\nTile: %s\n",goal ,pawn, tile);
 	
-	printf("Pawn: %c\nGoal: %c\nPath: %c\n", pawn, goal, path);
+	printf("Field size (width length): ");
+	scanf("%d %d", &width, &length);
 	
-	char Map[][4][3] = {
-					{"[ ]","[ ]","[ ]","[ ]"},
-					{"[ ]","[ ]","[ ]","[ ]"},
-					{"[ ]","[ ]","[ ]","[ ]"},
-					{"[ ]","[ ]","[ ]","[ ]"}
-					};
+	char **Map = (char **)malloc(width*length*elemSize*sizeof(char*));
+	
+	for (i = 0; i < length; i++)
+		for (j = 0; j < width; j++)
+			*(Map + elemSize*(i*width + j)) = tile;
+
 	
 	printf("Pawn starting point (X Y): ");
-	scanf("%d %d", &pawnStart.x, &pawnStart.y);
+	scanf("%d %d", &pawnLocation.x, &pawnLocation.y);
 	printf("Goal point (X Y): ");
-	scanf("%d %d", &goalPoint.x, &goalPoint.y);
+	scanf("%d %d", &goalLocation.x, &goalLocation.y);
 	
-	if (pawnStart.x > 4 || pawnStart.y > 4 || pawnStart.x <= 0 || pawnStart.y <= 0 || 
-		goalPoint.x > 4 || goalPoint.y > 4 || goalPoint.x <= 0 || goalPoint.y <= 0) {
-		printf("Invalid location!");
-		return -1;
-	} else if (pawnStart.x == goalPoint.x && pawnStart.y == goalPoint.y) {
-		printf("Pawn and goal can't start at the same point!");
-		return -2;
+	if (goalLocation.x > width || goalLocation.y > length || goalLocation.x < 1 || goalLocation.y < 1 ||
+		pawnLocation.x > width || pawnLocation.y > length || pawnLocation.x < 1 || pawnLocation.y < 1) {
+			printf("Invalid location!");
+			return -1;
+		} else  if (pawnLocation.x == goalLocation.x && pawnLocation.y == goalLocation.y) {
+			printf("Pawn and goal can't start at same location!");
+			return -1;
+		}
+	
+	*(Map + elemSize*((pawnLocation.y-1)*width + pawnLocation.x-1)) = pawn;
+	*(Map + elemSize*((goalLocation.y-1)*width + goalLocation.x-1)) = goal;
+	
+	for (i = 0; i < length; i++) {
+		printf("\n");
+		for (j = 0; j < width; j++)
+			printf("%s", *(Map + elemSize*(i*width + j)));
 	}
-		
-	Map[pawnStart.y-1][pawnStart.x-1][1] = pawn;
-	Map[goalPoint.y-1][goalPoint.x-1][1] = goal;
 	
-	printMap(Map);	
+	printf("\nDistance: %.2f", distance(&pawnLocation, &goalLocation));
 	
-	printf("Distance: %.2f", pathToGoal(Map));
-	
+	free(Map);
 	return 0;
 }
 
-/*void pathFind() {
-	
-}*/
-
-float pathToGoal(char Map[][4][3]) {
-	int i,j,u;
-	location pawnLocation, goalLocation;
-	
-	for (i=0;i<4;i++) 
-		for (j=0;j<4;j++) 
-				if (Map[i][j][1] == '!') {
-					pawnLocation.y = i + 1;
-					pawnLocation.x = j + 1;
-				} else if (Map[i][j][1] == 'G') {
-					goalLocation.y = i + 1;
-					goalLocation.x = j + 1;
-				}
-	return sqrt(pow(pawnLocation.x - goalLocation.x, 2) + pow(pawnLocation.y - goalLocation.y, 2)); 
-}
-
-void printMap(char Map[][4][3]) {
-	int i,j,u;
-	for (i=0;i<4;i++) {
-		for (j=0;j<4;j++) 
-			for (u=0;u<3;u++)
-				printf("%c",Map[i][j][u]);
-		printf("\n");
-	}
+float distance(location *pawn, location *goal) {
+	return sqrt(pow(pawn->y - goal->y,2)+pow(pawn->x - goal->x,2));
 }
