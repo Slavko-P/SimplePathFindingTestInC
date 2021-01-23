@@ -1,6 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <unistd.h>
+
+//Windows only
+#include <conio.h>
+#define ARROW_PRESS 224
+#define ARROW_UP 72
+#define ARROW_DOWN 80
+#define ARROW_LEFT 75
+#define ARROW_RIGHT 77
+#define ESCAPE_CHAR 27
 
 typedef struct locations {int x, y;} location;
 
@@ -43,15 +53,40 @@ int main() {
 	*(Map + elemSize*((pawnLocation.y-1)*width + pawnLocation.x-1)) = pawn;
 	*(Map + elemSize*((goalLocation.y-1)*width + goalLocation.x-1)) = goal;
 	
+	printf("\nDistance: %.2f", distance(&pawnLocation, &goalLocation));
+	
 	for (i = 0; i < length; i++) {
 		printf("\n");
 		for (j = 0; j < width; j++)
 			printf("%s", *(Map + elemSize*(i*width + j)));
 	}
 	
-	printf("\nDistance: %.2f", distance(&pawnLocation, &goalLocation));
-	
 	free(Map);
+
+	/*
+	//TESTING
+	char buffer;
+	for(;;) {
+		if (_kbhit()) {
+			buffer = getch();
+			switch(buffer) {
+				case ARROW_DOWN:
+				printf("DOWN\n");
+				break;
+				case ARROW_LEFT:
+				printf("LEFT\n");
+				break;
+				case ARROW_RIGHT:
+				printf("RIGHT\n");
+				break;
+				case ARROW_UP:
+				printf("UP\n");
+				break;	
+			} 
+		} else if (buffer == ESCAPE_CHAR)
+			break;
+	}*/
+
 	return 0;
 }
 
